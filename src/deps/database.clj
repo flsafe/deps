@@ -1,5 +1,5 @@
 (ns deps.database
-    (:require [com.stuartsierra.component :refer [Lifecycle]])
+    (:require [com.stuartsierra.component :as component])
     (:import [com.zaxxer.hikari HikariConfig HikariDataSource]))
 
 ; https://github.com/weavejester/duct-hikaricp-component
@@ -18,22 +18,23 @@
     (when max-pool-size        (.setMaximumPoolSize cfg max-pool-size))
     (when min-idle             (.setMinimumIdle cfg min-idle))
     (when pool-name            (.setPoolName cfg pool-name))
+    (.setDataSourceClassName cfg "org.postgresql.ds.PGSimpleDataSource")
     cfg))
 
 (defn- make-spec [component]
   {:datasource (HikariDataSource. (make-config component))})
 
 (defrecord Database []
-  Lifecycle
+  component/Lifecycle
   
   (start [component]
-    (println ";; Starting connection pool")
+    (println "; Starting connection pool")
     (if (:db-spec component)
       component
       (assoc component :db-spec (make-spec component))))
 
   (stop [component]
-    (println ";; Stopping connection pool")
+    (println "; Stopping connection pool")
     (if-let [db-spec (:db-spec component)]
       (do (.close (:datasource db-spec))
           (dissoc component :db-spec))
