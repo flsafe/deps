@@ -4,7 +4,7 @@
  :databases {:sql-dev {:type :sql :url "jdbc:postgresql://localhost/deps_dev"}
              :sql-test {:type :sql :url "jdbc:postgresql://localhost/deps_test"}
              :sql-prod {:type :sql
-                        :url #envf ["jdbc:postgresql://deps_prod?user=%s&password=%s" PSQL_USER PSQL_PASSWORD]}}
+                        :url #envf ["jdbc:postgresql://%s/deps_prod?user=%s&password=%s" PSQL_HOST PSQL_USER PSQL_PASSWORD]}}
 
  :environments {:dev [{:db :sql-dev :migrator :sql-migrators}]
                 :test [{:db :sql-test :migrator :sql-migrators}]
