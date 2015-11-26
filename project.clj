@@ -10,7 +10,8 @@
                  [org.postgresql/postgresql "9.4-1205-jdbc41"]
                  [com.stuartsierra/component "0.3.0"]
                  [com.zaxxer/HikariCP "2.4.1"]
-                 [org.clojure/tools.namespace "0.2.11"]]
+                 [org.clojure/tools.namespace "0.2.11"]
+                 [clj-http "2.0.0"]]
   :main ^:skip-aot deps.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
