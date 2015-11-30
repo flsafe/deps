@@ -1,10 +1,11 @@
 (ns deps.repo
   (:require [com.stuartsierra.component :as component]
             [clojure.core.async :refer [timeout alt!! >!! <!! thread]]
+            [clojure.data.json :as json]
             [clj-http.client :as http]))
 
 (defn download-repo [repo-url]
-  (http/get repo-url {:as :json}))
+  (json/read-json (:body (http/get repo-url {:as :json}))))
 
 (defn start-worker [download-repos save-repos shutdown]
   (thread
@@ -31,7 +32,7 @@
     (println "; Starting repo importer")
     (assoc component
            :repo-download-workers 
-           (start-workers 1
+           (start-workers 4
                           (:download-repos channels)
                           (:save-repos channels)
                           (:shutdown channels)))
