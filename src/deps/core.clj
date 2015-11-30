@@ -1,7 +1,6 @@
 (ns deps.core
   (:require [com.stuartsierra.component :as component]
-            [deps.database :as db]
-            [deps.repo-importer :as repo])
+            [deps.database :as db])
   (:gen-class))
 
 (defn -main

@@ -4,10 +4,9 @@
             [clj-http.client :as http]))
 
 (defn download-repo [repo-url]
-  (println "; Repo importer worker is downloading..")
   (http/get repo-url {:as :json}))
 
-(defn start-worker [input output shutdown]
+(defn start-worker [download-repos save-repos shutdown]
   (thread
     (println "; Repo importer worker start")
     (loop []
@@ -16,17 +15,17 @@
         ([_]
          (println "; Repo importer Worker shutting down"))
 
-        input
+        download-repos
         ([repo-url]
-         (>!! output (download-repo repo-url))
+         (>!! save-repos (download-repo repo-url))
          (recur))))))
 
-(defn start-workers [number-of-workers input output shutdown]
+(defn start-workers [number-of-workers download-repos save-repos shutdown]
   (doall
-   (map (fn [_] (start-worker input output shutdown))
+   (map (fn [_] (start-worker download-repos save-repos shutdown))
         (range number-of-workers))))
 
-(defrecord RepoImporter [opts channels]
+(defrecord RepoDownloader [opts channels]
   component/Lifecycle
   (start [component]
     (println "; Starting repo importer")
@@ -42,10 +41,10 @@
     (dissoc component :repo-download-workers)
     component))
 
-(defn new-repo-importer [opts]
-  (map->RepoImporter opts))
+(defn new-repo-downloader [opts]
+  (map->RepoDownloader opts))
 
-(defn start-poller [output shutdown]
+(defn start-poller [download-repos shutdown]
   (thread
     (println "; Poller start")
     (loop []
@@ -54,10 +53,10 @@
         ([_]
          (println "; Repo poller shutdown"))
 
-        (timeout 50)
+        (timeout 20)
         ([_]
-         (>!! output (rand-nth ["http://jsonplaceholder.typicode.com/photos"
-                               "http://jsonplaceholder.typicode.com/comments"]))
+         (>!! download-repos (rand-nth ["http://jsonplaceholder.typicode.com/photos"
+                                        "http://jsonplaceholder.typicode.com/comments"]))
          (recur))))))
 
 (defrecord RepoPoller [opts channels]

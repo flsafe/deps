@@ -24,8 +24,9 @@
   component/Lifecycle
   (start [component]
     (go-loop [msg (<! (get channels channel-key))]
-      (println msg)
-      (recur (<! (get channel-key channel-key)))))
+      (when msg 
+        (println (str "-> downloaded " (count msg) " items"))
+        (recur (<! (get channels channel-key))))))
   (stop [component]
     component))
 
@@ -35,8 +36,8 @@
    :database (db/new-database opts)
    :repo-poller (component/using (repo/new-repo-poller opts)
                                  [:channels])
-   :repo-importer (component/using  (repo/new-repo-importer opts)
-                                    [:channels])
+   :repo-downloader (component/using (repo/new-repo-downloader opts)
+                                      [:channels])
    :print-sink (component/using
                 (map->PrintSink {:channel-key :save-repos})
                 [:channels])))
