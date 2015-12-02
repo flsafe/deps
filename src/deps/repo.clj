@@ -2,7 +2,15 @@
   (:require [com.stuartsierra.component :as component]
             [clojure.core.async :refer [timeout alt!! >!! <!! thread]]
             [clojure.data.json :as json]
-            [clj-http.client :as http]))
+            [clj-http.client :as http]
+            [yesql.core :refer [require-sql]]))
+
+; System pipline:
+;
+; RepoPoller =[download-repos]=> RepoDownloader =[save-repos]=>
+;
+
+(require-sql ["deps/repos.sql" :refer [poll-repos]])
 
 (defn download-repo [repo-url]
   (json/read-json (:body (http/get repo-url {:as :json}))))
@@ -45,7 +53,7 @@
 (defn new-repo-downloader [opts]
   (map->RepoDownloader opts))
 
-(defn start-poller [download-repos shutdown]
+(defn start-poller [download-repos shutdown database]
   (thread
     (println "; Poller start")
     (loop []
@@ -54,18 +62,21 @@
         ([_]
          (println "; Repo poller shutdown"))
 
-        (timeout 20)
+        (timeout 3000)
         ([_]
-         (>!! download-repos (rand-nth ["http://jsonplaceholder.typicode.com/photos"
-                                        "http://jsonplaceholder.typicode.com/comments"]))
+         (println "; poll db")
+         (let [repos (poll-repos {} {:connection database})]
+           (doseq [r repos]
+             (>!! download-repos r)))
          (recur))))))
 
-(defrecord RepoPoller [opts channels]
+(defrecord RepoPoller [opts channels database]
   component/Lifecycle
   (start [component]
     (println "; Starting repo poller")
     (assoc component :repo-poller (start-poller (:download-repos channels)
-                                                (:shutdown channels)))
+                                                (:shutdown channels)
+                                                database))
     component)
   (stop [component]
     (println "; Stopping repo poller")

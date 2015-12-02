@@ -4,6 +4,12 @@
             [deps.database :as db]
             [deps.repo :as repo]))
 
+(Thread/setDefaultUncaughtExceptionHandler
+ (reify Thread$UncaughtExceptionHandler
+   (uncaughtException [_ thread ex]
+     (println "Uncaught exception on" (.getName thread) (.getMessage ex))
+     (.printStackTrace ex))))
+
 (defrecord Channels [download-repos save-repos shutdown]
     component/Lifecycle
   (start [component]
@@ -35,7 +41,7 @@
    :channels (map->Channels {})
    :database (db/new-database opts)
    :repo-poller (component/using (repo/new-repo-poller opts)
-                                 [:channels])
+                                 [:channels :database])
    :repo-downloader (component/using (repo/new-repo-downloader opts)
                                       [:channels])
    :print-sink (component/using

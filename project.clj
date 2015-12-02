@@ -13,7 +13,8 @@
                  [org.postgresql/postgresql "9.4-1205-jdbc41"]
                  [com.stuartsierra/component "0.3.0"]
                  [com.zaxxer/HikariCP "2.4.1"]
-                 [clj-http "2.0.0"]]
+                 [clj-http "2.0.0"]
+                 [yesql "0.5.1"]]
   :main ^:skip-aot deps.core
   :target-path "target/%s"
   :profiles {:uberjar {:aot :all}})
