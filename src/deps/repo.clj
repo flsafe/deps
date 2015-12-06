@@ -3,14 +3,14 @@
             [clojure.core.async :refer [timeout alt!! >!! <!! thread]]
             [clojure.data.json :as json]
             [clj-http.client :as http]
-            [yesql.core :refer [require-sql]]))
+            [yesql.core :refer [defqueries]]))
 
 ; System pipline:
 ;
 ; RepoPoller =[download-repos]=> RepoDownloader =[save-repos]=>
 ;
 
-(require-sql ["deps/repos.sql" :refer [poll-repos]])
+(defqueries "deps/repos.sql")
 
 (defn download-repo [repo-url]
   (json/read-json (:body (http/get repo-url {:as :json}))))
@@ -65,7 +65,7 @@
         (timeout 3000)
         ([_]
          (println "; poll db")
-         (let [repos (poll-repos {} {:connection database})]
+         (let [repos (poll-repos {} {:connection (:pool database)})]
            (doseq [r repos]
              (>!! download-repos r)))
          (recur))))))

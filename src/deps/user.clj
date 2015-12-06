@@ -1,13 +1,15 @@
 (ns deps.user
   (:require [com.stuartsierra.component :as component]
             [clojure.tools.namespace.repl :as namespace]
-            [deps.system :as system]))
+            [deps.system :as system]
+            [deps.migrate :as m]))
 
 (def system nil)
 
 (defn init []
   (alter-var-root #'system
-                  (constantly (system/deps-system {}))))
+                  (constantly
+                   (system/deps-system {:database-uri (m/get-sql-url)}))))
 
 (defn start []
   (alter-var-root #'system component/start))
