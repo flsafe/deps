@@ -1,10 +1,10 @@
 {
  :migrators {:sql-migrators "resources/migrators/sql"}
 
- :databases {:sql-dev {:type :sql :url "jdbc:postgresql://localhost/deps_dev"}
-             :sql-test {:type :sql :url "jdbc:postgresql://localhost/deps_test"}
+ :databases {:sql-dev {:type :sql :url "jdbc:postgresql://localhost/deps_dev?user=deps_dev"}
+             :sql-test {:type :sql :url "jdbc:postgresql://localhost/deps_tes?user=deps_test"}
              :sql-prod {:type :sql
-                        :url #envf ["jdbc:postgresql://%s/deps_prod?user=%s&password=%s" PSQL_HOST PSQL_USER PSQL_PASSWORD]}}
+                        :url #env PSQL_URL}}
 
  :environments {:dev [{:db :sql-dev :migrator :sql-migrators}]
                 :test [{:db :sql-test :migrator :sql-migrators}]
