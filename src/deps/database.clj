@@ -5,10 +5,10 @@
 ; https://github.com/weavejester/duct-hikaricp-component
 
 (defn- make-config
-  [{:keys [database-uri username password auto-commit? conn-timeout idle-timeout
+  [{:keys [url username password auto-commit? conn-timeout idle-timeout
            max-lifetime conn-test-query min-idle max-pool-size pool-name]}]
   (let [cfg (HikariConfig.)]
-    (when database-uri         (.setJdbcUrl cfg database-uri))
+    (when url                  (.setJdbcUrl cfg url))
     (when username             (.setUsername cfg username))
     (when password             (.setPassword cfg password))
     (when (some? auto-commit?) (.setAutoCommit cfg auto-commit?))
@@ -24,7 +24,7 @@
 (defn- make-spec [component]
   {:datasource (HikariDataSource. (make-config component))})
 
-(defrecord Database [database-uri]
+(defrecord Database [url]
   component/Lifecycle
   
   (start [component]
@@ -41,5 +41,5 @@
       component)))
 
 (defn new-database [opts]
-  {:pre [(:database-uri opts)]}
+  {:pre [(:url opts)]}
   (map->Database opts))

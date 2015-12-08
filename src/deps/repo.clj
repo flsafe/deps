@@ -26,8 +26,9 @@
 
         download-repos
         ([repo-url]
-         (>!! save-repos (download-repo repo-url))
-         (recur))))))
+         (when repo-url
+           (>!! save-repos (download-repo repo-url))
+           (recur)))))))
 
 (defn start-workers [number-of-workers download-repos save-repos shutdown]
   (doall

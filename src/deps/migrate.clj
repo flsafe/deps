@@ -9,6 +9,6 @@
   (or (System/getenv "CLJ_ENV")
       "dev"))
 
-(defn get-sql-url []
+(defn get-sql-config []
   (let [db (keyword (str "sql-" (get-clj-env)))]
-    (get-in mconfig [:databases db :url])))
+    (get-in mconfig [:databases db])))

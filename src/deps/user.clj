@@ -9,8 +9,7 @@
 (defn init []
   (alter-var-root #'system
                   (constantly
-                   (system/deps-system {:database-uri (m/get-sql-url)
-                                        :username "deps_frank"}))))
+                   (system/deps-system (m/get-sql-config)))))
 
 (defn start []
   (alter-var-root #'system component/start))
